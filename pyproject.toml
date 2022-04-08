@@ -6,10 +6,25 @@ authors = ["Jxtopher <39927513+Jxtopher@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+fastapi = "^0.75.1"
+uvicorn = "^0.17.6"
+python-dotenv = "^0.20.0"
+pyspark = "^3.2.1"
+stubs = "^1.0.0"
+pandas = "^1.4.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+mypy = "^0.942"
+black = "^22.3.0"
+flake8 = "^4.0.1"
+unittest = "^0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+start = "retails_analysis.dispatch:start"
+spark = "retails_analysis.spark_test:test"
+spark2 = "retails_analysis.spark_test:test"
+import = "retails_analysis.import_test:test"
