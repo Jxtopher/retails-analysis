@@ -7,13 +7,39 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: retails-analysis-backend
+    depends_on:
+      - mongo
+      - spark-master
+    ports:
+      - 80:80
     volumes:
       - ./:/apps/
-  
+
+  spark-worker:
+    image: bitnami/spark:latest
+    container_name: retails-analysis-spark-worker
+    restart: always
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: retails-analysis-spark-master
+    restart: always
+    ports:
+      - 8080:8080
+      - 7077:7077
+    environment:
+      - SPARK_MODE=master
+
   mongo:
     image: mongo:${MONNGO_VERSION:-latest}
     container_name: retails-analysis-mongo
     restart: always
+    ports:
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONNGO_USER:-root}
       MONGO_INITDB_ROOT_PASSWORD: ${MONNGO_PWD:-root}

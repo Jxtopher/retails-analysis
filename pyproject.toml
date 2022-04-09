@@ -5,13 +5,14 @@ description = ""
 authors = ["Jxtopher <39927513+Jxtopher@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.8"
 fastapi = "^0.75.1"
 uvicorn = "^0.17.6"
 python-dotenv = "^0.20.0"
 pyspark = "^3.2.1"
 stubs = "^1.0.0"
 pandas = "^1.4.2"
+openpyxl = "^3.0.9"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.942"
@@ -26,5 +27,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 start = "retails_analysis.dispatch:start"
 spark = "retails_analysis.spark_test:test"
-spark2 = "retails_analysis.spark_test:test"
+spark2 = "retails_analysis.spark_test2:test"
 import = "retails_analysis.import_test:test"
+mongo = "retails_analysis.mongo_test:test"

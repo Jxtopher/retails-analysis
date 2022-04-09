@@ -1,0 +1,26 @@
+name: Check backend
+on: [pull_request, push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+
+      - name: Check with mypy
+        run: poetry run mypy --config-file .config/mypy.cfg retails_analysis
+
+      - name: Check with flake8
+        run: poetry run flake8 --config .config/flake8.cfg
+        
+      - name: Tests
+        run: poetry run python -u -m unittest discover

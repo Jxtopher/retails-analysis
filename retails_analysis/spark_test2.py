@@ -3,9 +3,9 @@ from pyspark import SparkConf, SparkContext
 
 def test():
 
-    sc = SparkContext()
-    # conf = SparkConf().setAppName("PySpark App").setMaster("spark://localhost:7077")
-    # sc = SparkContext(conf=conf)
+    # sc = SparkContext()
+    conf = SparkConf().setAppName("PySpark App").setMaster("spark://spark-master:7077")
+    sc = SparkContext(conf=conf)
     ma_liste = range(10000)
     print(ma_liste)
     rdd = sc.parallelize(ma_liste, 2)
