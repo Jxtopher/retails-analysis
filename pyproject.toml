@@ -12,6 +12,7 @@ python-dotenv = "^0.20.0"
 pyspark = "^3.2.1"
 pandas = "^1.4.2"
 openpyxl = "^3.0.9"
+plotly = "^5.7.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.942"

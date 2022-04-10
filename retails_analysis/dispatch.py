@@ -1,4 +1,5 @@
 import uvicorn
+import plotly.graph_objects as go
 
 from dotenv import dotenv_values
 from fastapi import FastAPI
@@ -118,8 +119,43 @@ async def customer_spent_most() -> List[str]:
     return df_joined.toJSON().collect()
 
 
+# @app.get("/ratio_between_price_quantity", response_class=JSONResponse)
+# async def ratio_between_price_quantity() -> List[str]:
+#     """Get the ratio between price and quantity for each invoice"""
+#     df = SparkSession.getActiveSession().read.format("mongodb").load()
+#     final = df.groupBy('InvoiceNo').agg(
+#         F.sum('Quantity').alias('Quantities'), F.sum('UnitPrice').alias('Prices')
+#     )
+#     df_total = final.withColumn('Ratio', final['Prices'] / final['Quantities'])
+
+#     df_total.show()
+#     return []
+
+
+@app.get("/chart_distribution_prices", response_class=HTMLResponse)
+async def chart_distribution_prices() -> Any:
+    df = SparkSession.getActiveSession().read.format("mongodb").load()
+    distribution_prices = df.groupBy('UnitPrice').agg(F.sum('Quantity').alias('Quantities'))
+    distribution_prices.show()
+
+    for a, b in distribution_prices:
+        print(a, b)
+
+    # fig = go.Figure(
+    #     data=[
+    #         go.Histogram(
+    #             x=distribution_prices.toPandas()['UnitPrice'],
+    #         )
+    #     ],
+    #     # data=[go.bar(distribution_prices.toPandas(), x='UnitPrice', y='Quantities')],
+    #     layout_title_text="A Figure Displaying Itself",
+    # )
+
+    return "fig.to_html()"
+
+
 def start() -> None:
-    # Launched with `poetry run start` at root level
+    """Launched with `poetry run start` at root level"""
     uvicorn.run(
         "retails_analysis.dispatch:app",
         host=config["LISTEN_HOST"],
