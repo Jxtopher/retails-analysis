@@ -4,9 +4,7 @@ from dotenv import dotenv_values
 from typing import Optional, Dict, Any, List
 from pyspark.sql import SparkSession
 from os.path import exists
-from fastapi.responses import HTMLResponse
-from pyspark.sql import functions as F
-from pyspark.context import SparkContext
+from fastapi.responses import HTMLResponse, JSONResponse
 
 # Loading environment vars
 config = dotenv_values(".env")
@@ -15,22 +13,22 @@ if not exists(".env"):
 
 # Spark initialisation
 mongodb_write_uri = (
-    'mongodb://'
-    + config['MONNGO_USER']
-    + ':'
-    + config['MONNGO_PWD']
-    + '@'
-    + config['MONNGO_HOST']
-    + '/test.coll?authSource=admin'
+    'mongodb://',
+    config['MONNGO_USER'],
+    ':',
+    config['MONNGO_PWD'],
+    '@',
+    config['MONNGO_HOST'],
+    '/test.coll?authSource=admin',
 )
 mongodb_read_uri = (
-    'mongodb://'
-    + config['MONNGO_USER']
-    + ':'
-    + config['MONNGO_PWD']
-    + '@'
-    + config['MONNGO_HOST']
-    + '/test.coll?authSource=admin'
+    'mongodb://',
+    config['MONNGO_USER'],
+    ':',
+    config['MONNGO_PWD'],
+    '@',
+    config['MONNGO_HOST'],
+    '/test.coll?authSource=admin',
 )
 
 (
@@ -86,8 +84,8 @@ def read_item(item_id: int, q: Optional[str] = None) -> Dict[str, Any]:
     return {"item_id": item_id, "q": q}
 
 
-@app.get("/product_sold_most")
-async def product_sold_most() -> List[Dict[str, Any]]:
+@app.get("/product_sold_most", response_class=JSONResponse)
+async def product_sold_most() -> List[str]:
     df = (
         SparkSession.getActiveSession()
         .read.format("mongodb")
@@ -103,8 +101,8 @@ async def product_sold_most() -> List[Dict[str, Any]]:
     return final.toJSON().collect()
 
 
-@app.get("/group_by_invoice")
-async def group_by_invoice() -> List[Dict[str, Any]]:
+@app.get("/group_by_invoice", response_class=JSONResponse)
+async def group_by_invoice() -> List[str]:  # List[Dict[str, Any]]
     df = (
         SparkSession.getActiveSession()
         .read.format("mongodb")
