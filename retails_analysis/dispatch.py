@@ -1,10 +1,12 @@
 import uvicorn
-from fastapi import FastAPI
+
 from dotenv import dotenv_values
-from typing import Optional, Dict, Any, List
-from pyspark.sql import SparkSession
-from os.path import exists
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
+from os.path import exists
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from typing import Optional, Dict, Any, List
 
 # Loading environment vars
 config = dotenv_values(".env")
@@ -13,22 +15,22 @@ if not exists(".env"):
 
 # Spark initialisation
 mongodb_write_uri = (
-    'mongodb://',
-    config['MONNGO_USER'],
-    ':',
-    config['MONNGO_PWD'],
-    '@',
-    config['MONNGO_HOST'],
-    '/test.coll?authSource=admin',
+    'mongodb://'
+    + str(config['MONNGO_USER'])
+    + ':'
+    + str(config['MONNGO_PWD'])
+    + '@'
+    + str(config['MONNGO_HOST'])
+    + '/test.coll?authSource=admin'
 )
 mongodb_read_uri = (
-    'mongodb://',
-    config['MONNGO_USER'],
-    ':',
-    config['MONNGO_PWD'],
-    '@',
-    config['MONNGO_HOST'],
-    '/test.coll?authSource=admin',
+    'mongodb://'
+    + str(config['MONNGO_USER'])
+    + ':'
+    + str(config['MONNGO_PWD'])
+    + '@'
+    + str(config['MONNGO_HOST'])
+    + '/test.coll_full?authSource=admin'
 )
 
 (
@@ -86,41 +88,41 @@ def read_item(item_id: int, q: Optional[str] = None) -> Dict[str, Any]:
 
 @app.get("/product_sold_most", response_class=JSONResponse)
 async def product_sold_most() -> List[str]:
-    df = (
-        SparkSession.getActiveSession()
-        .read.format("mongodb")
-        .option("database", 'test')
-        .option("collection", 'coll_full')
-        .load()
-    )
-    df_group = df.groupBy('StockCode').sum('Quantity')
-    final = df_group.agg(
-        {'sum(Quantity)': 'max'},
-    )
-
-    return final.toJSON().collect()
+    """Get product sold the most"""
+    df = SparkSession.getActiveSession().read.format("mongodb").load()
+    df_sum_quantities = df.groupBy('StockCode').agg(F.sum('Quantity').alias('Quantities'))
+    df_max_quantity = df_sum_quantities.agg(F.max('Quantities').alias("Quantities"))
+    df_joined = df_max_quantity.join(df_sum_quantities, "Quantities", "inner")
+    return df_joined.toJSON().collect()
 
 
 @app.get("/group_by_invoice", response_class=JSONResponse)
 async def group_by_invoice() -> List[str]:  # List[Dict[str, Any]]
-    df = (
-        SparkSession.getActiveSession()
-        .read.format("mongodb")
-        .option("database", 'test')
-        .option("collection", 'coll_full')
-        .load()
-    )
+    """Group all transactions by invoice"""
+    df = SparkSession.getActiveSession().read.format("mongodb").load()
     df_total = df.withColumn('Total', df['Quantity'] * df['UnitPrice'])
     final = df_total.groupBy('InvoiceNo').sum('Total')
     return final.toJSON().collect()
 
 
-def start() -> None:
+@app.get("/customer_spent_most", response_class=JSONResponse)
+async def customer_spent_most() -> List[str]:
+    """Get the customer spent the most money"""
+    df = SparkSession.getActiveSession().read.format("mongodb").load()
+    df_total = df.withColumn('S/Total', df['Quantity'] * df['UnitPrice'])
+    df_customer_spending = df_total.groupBy('CustomerID').agg(
+        F.round(F.sum('S/Total'), 4).alias('Total')
+    )
+    df_spent_most = df_customer_spending.agg(F.max('Total').alias("Total"))
+    df_joined = df_spent_most.join(df_customer_spending, "Total", "inner")
+    return df_joined.toJSON().collect()
 
+
+def start() -> None:
     # Launched with `poetry run start` at root level
     uvicorn.run(
         "retails_analysis.dispatch:app",
         host=config["LISTEN_HOST"],
-        port=int(config["LISTEN_PORT"]),
+        port=int(str(config["LISTEN_PORT"])),
         reload=True,
     )

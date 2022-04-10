@@ -333,14 +333,6 @@ anyio = ">=3.0.0,<4"
 full = ["itsdangerous", "jinja2", "python-multipart", "pyyaml", "requests"]
 
 [[package]]
-name = "stubs"
-version = "1.0.0"
-description = "Tools for setting up stubs and mocks."
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -383,7 +375,7 @@ standard = ["websockets (>=10.0)", "httptools (>=0.4.0)", "watchgod (>=0.6)", "p
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "59fcad720a1ffec8602c95273ffd39f8d880dbaf07b81b0dd8c5bfe5d55c7a46"
+content-hash = "f12c4445d29b02c97c05d87513bac4666cbc6f62bb71ac4176736cd735dbbc72"
 
 [metadata.files]
 anyio = [
@@ -612,9 +604,6 @@ sniffio = [
 starlette = [
     {file = "starlette-0.17.1-py3-none-any.whl", hash = "sha256:26a18cbda5e6b651c964c12c88b36d9898481cd428ed6e063f5f29c418f73050"},
     {file = "starlette-0.17.1.tar.gz", hash = "sha256:57eab3cc975a28af62f6faec94d355a410634940f10b30d68d31cb5ec1b44ae8"},
-]
-stubs = [
-    {file = "stubs-1.0.0-py3-none-any.whl", hash = "sha256:f328a0f99880b0684db69288dcb104fa93d942df298ddd1659edaa7521415da8"},
 ]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
