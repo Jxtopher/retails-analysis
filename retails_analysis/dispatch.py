@@ -138,9 +138,6 @@ async def chart_distribution_prices() -> Any:
     distribution_prices = df.groupBy('UnitPrice').agg(F.sum('Quantity').alias('Quantities'))
     distribution_prices.show()
 
-    for a, b in distribution_prices:
-        print(a, b)
-
     # fig = go.Figure(
     #     data=[
     #         go.Histogram(
