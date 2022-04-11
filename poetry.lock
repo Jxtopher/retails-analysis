@@ -229,6 +229,14 @@ six = "*"
 tenacity = ">=6.2.0"
 
 [[package]]
+name = "puremagic"
+version = "1.12"
+description = "Pure python implementation of magic file detection"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "py4j"
 version = "0.10.9.3"
 description = "Enables Python programs to dynamically access arbitrary Java objects"
@@ -398,7 +406,7 @@ standard = ["websockets (>=10.0)", "httptools (>=0.4.0)", "watchgod (>=0.6)", "p
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "8cb77d096dd921324249aedb50c8d140ea5b952d2d3feb02b47e12ecbf4fe7a9"
+content-hash = "373b4f39fdd2bbe4d14efcaa37d6741429e5ecda9983edb49ee7e68ad42b9bba"
 
 [metadata.files]
 anyio = [
@@ -555,6 +563,10 @@ platformdirs = [
 plotly = [
     {file = "plotly-5.7.0-py2.py3-none-any.whl", hash = "sha256:3a35131762c6567813012462e1d496e1d3898f56ab3d386b32f103f7f0c79cf1"},
     {file = "plotly-5.7.0.tar.gz", hash = "sha256:15ab20e9ed8b55f669b3d35e186eb48f9e1fe07321a1337b8b7df8d3573d265a"},
+]
+puremagic = [
+    {file = "puremagic-1.12-py3-none-any.whl", hash = "sha256:9e7ab53f8f01cc8b64309a4d46e879178e8e14720803dbc4b56e481ec9cafb08"},
+    {file = "puremagic-1.12.tar.gz", hash = "sha256:8c0baec089921317362a30faca2e9678c91d5e97ce004dc6a7c1c669e0547838"},
 ]
 py4j = [
     {file = "py4j-0.10.9.3-py2.py3-none-any.whl", hash = "sha256:04f5b06917c0c8a81ab34121dda09a2ba1f74e96d59203c821d5cb7d28c35363"},

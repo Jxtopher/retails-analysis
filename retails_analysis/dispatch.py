@@ -1,5 +1,5 @@
+# import plotly.graph_objects as go
 import uvicorn
-import plotly.graph_objects as go
 
 from dotenv import dotenv_values
 from fastapi import FastAPI
@@ -8,6 +8,7 @@ from os.path import exists
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from typing import Optional, Dict, Any, List
+
 
 # Loading environment vars
 config = dotenv_values(".env")
@@ -55,7 +56,7 @@ app = FastAPI()
 
 @app.get("/test", response_class=HTMLResponse)
 async def test() -> str:
-    return '<svg height="100" width="100"> <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" /> Sorry, your browser does not support inline SVG.</svg>'
+    return '<svg height="100" width="100"></svg>'
 
 
 @app.get("/")
@@ -155,7 +156,7 @@ def start() -> None:
     """Launched with `poetry run start` at root level"""
     uvicorn.run(
         "retails_analysis.dispatch:app",
-        host=config["LISTEN_HOST"],
-        port=int(str(config["LISTEN_PORT"])),
+        host=config["RATAILS_ANALYSIS_API_LISTEN_HOST"],
+        port=int(str(config["RATAILS_ANALYSIS_API_LISTEN_PORT"])),
         reload=True,
     )

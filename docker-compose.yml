@@ -15,8 +15,14 @@ services:
     volumes:
       - ./:/apps/
 
+  jupyter-notebook:
+    container_name: retails-analysis-jupyter
+    depends_on:
+      - mongo
+      - spark-master
+
   spark-worker:
-    image: bitnami/spark:latest
+    image: bitnami/spark:${SPARK_VERSION:-latest}
     container_name: retails-analysis-spark-worker
     restart: always
     depends_on:
@@ -25,7 +31,7 @@ services:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
   spark-master:
-    image: bitnami/spark:latest
+    image: bitnami/spark:${SPARK_VERSION:-latest}
     container_name: retails-analysis-spark-master
     restart: always
     ports:
