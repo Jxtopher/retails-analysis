@@ -27,7 +27,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 start = "retails_analysis.dispatch:start"
-spark = "retails_analysis.spark_test:test"
-spark2 = "retails_analysis.spark_test2:test"
 import = "retails_analysis.import_dataset:main"
-mongo = "retails_analysis.mongo_test:test"

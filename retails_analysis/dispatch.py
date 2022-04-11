@@ -1,4 +1,4 @@
-# import plotly.graph_objects as go
+import plotly.graph_objects as go
 import uvicorn
 
 from dotenv import dotenv_values
@@ -23,7 +23,11 @@ mongodb_write_uri = (
     + str(config['MONNGO_PWD'])
     + '@'
     + str(config['MONNGO_HOST'])
-    + '/test.coll?authSource=admin'
+    + '/'
+    + str(config['MONNGO_DB'])
+    + '.'
+    + str(config['MONNGO_COLL'])
+    + '?authSource=admin'
 )
 mongodb_read_uri = (
     'mongodb://'
@@ -32,19 +36,23 @@ mongodb_read_uri = (
     + str(config['MONNGO_PWD'])
     + '@'
     + str(config['MONNGO_HOST'])
-    + '/test.coll_full?authSource=admin'
+    + '/'
+    + str(config['MONNGO_DB'])
+    + '.'
+    + str(config['MONNGO_COLL'])
+    + '?authSource=admin'
 )
 
 (
     SparkSession.builder.appName("Retails analysis")
-    .master("spark://spark-master:7077")
-    .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector:10.0.0')
+    .master('spark://' + str(config['SPARK_MASTER_HOST']) + ':' + str(config['SPARK_MASTER_PORT']))
+    .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.12:3.0.2')
     .config(
-        'spark.mongodb.write.connection.uri',
+        'spark.mongodb.input.uri',
         mongodb_write_uri,
     )
     .config(
-        'spark.mongodb.read.connection.uri',
+        'spark.mongodb.output.uri',
         mongodb_read_uri,
     )
     .getOrCreate()
@@ -91,7 +99,7 @@ def read_item(item_id: int, q: Optional[str] = None) -> Dict[str, Any]:
 @app.get("/product_sold_most", response_class=JSONResponse)
 async def product_sold_most() -> List[str]:
     """Get product sold the most"""
-    df = SparkSession.getActiveSession().read.format("mongodb").load()
+    df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
     df_sum_quantities = df.groupBy('StockCode').agg(F.sum('Quantity').alias('Quantities'))
     df_max_quantity = df_sum_quantities.agg(F.max('Quantities').alias("Quantities"))
     df_joined = df_max_quantity.join(df_sum_quantities, "Quantities", "inner")
@@ -101,7 +109,7 @@ async def product_sold_most() -> List[str]:
 @app.get("/group_by_invoice", response_class=JSONResponse)
 async def group_by_invoice() -> List[str]:  # List[Dict[str, Any]]
     """Group all transactions by invoice"""
-    df = SparkSession.getActiveSession().read.format("mongodb").load()
+    df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
     df_total = df.withColumn('Total', df['Quantity'] * df['UnitPrice'])
     final = df_total.groupBy('InvoiceNo').sum('Total')
     return final.toJSON().collect()
@@ -110,7 +118,7 @@ async def group_by_invoice() -> List[str]:  # List[Dict[str, Any]]
 @app.get("/customer_spent_most", response_class=JSONResponse)
 async def customer_spent_most() -> List[str]:
     """Get the customer spent the most money"""
-    df = SparkSession.getActiveSession().read.format("mongodb").load()
+    df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
     df_total = df.withColumn('S/Total', df['Quantity'] * df['UnitPrice'])
     df_customer_spending = df_total.groupBy('CustomerID').agg(
         F.round(F.sum('S/Total'), 4).alias('Total')
@@ -133,23 +141,42 @@ async def customer_spent_most() -> List[str]:
 #     return []
 
 
+@app.get("/chart_test", response_class=HTMLResponse)
+async def chart_test() -> Any:
+    # sc = SparkSession.getActiveSession().sparkContext
+    # sc.parallelize()
+
+    df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
+    get_countrys = df.groupBy('Country').agg(F.count('Country'))
+
+    print(df)
+    for country, _ in get_countrys.collect():
+        print(country)
+        df.show()
+        azer = df.filter(F.col('Country') == country)
+        azer.show()
+        break
+
+    pass
+
+
 @app.get("/chart_distribution_prices", response_class=HTMLResponse)
 async def chart_distribution_prices() -> Any:
-    df = SparkSession.getActiveSession().read.format("mongodb").load()
+    df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
     distribution_prices = df.groupBy('UnitPrice').agg(F.sum('Quantity').alias('Quantities'))
     distribution_prices.show()
 
-    # fig = go.Figure(
-    #     data=[
-    #         go.Histogram(
-    #             x=distribution_prices.toPandas()['UnitPrice'],
-    #         )
-    #     ],
-    #     # data=[go.bar(distribution_prices.toPandas(), x='UnitPrice', y='Quantities')],
-    #     layout_title_text="A Figure Displaying Itself",
-    # )
+    fig = go.Figure(
+        data=[
+            go.Histogram(
+                x=distribution_prices.toPandas()['UnitPrice'],
+            )
+        ],
+        # data=[go.bar(distribution_prices.toPandas(), x='UnitPrice', y='Quantities')],
+        layout_title_text="A Figure Displaying Itself",
+    )
 
-    return "fig.to_html()"
+    return fig.to_html()
 
 
 def start() -> None:

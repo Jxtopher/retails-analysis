@@ -1,4 +1,3 @@
-# https://stackoverflow.com/questions/59854917/reading-excel-xlsx-file-in-pyspark
 from numpy import double
 from pyspark.sql import SparkSession
 from os.path import exists
@@ -21,8 +20,7 @@ def import_retails_data(
     monngo_db: str,
     monngo_coll: str,
 ) -> None:
-    # sc = SparkConf().setAppName("PySpark App").setMaster("spark://spark-master:7077")
-    # spark = SparkContext(conf=conf)
+    """Import retails dataset in xls format"""
     spark = (
         SparkSession.builder.appName("Import retails dataset")
         .master('spark://' + spark_host + ':' + spark_port)
@@ -99,8 +97,8 @@ def main() -> None:
 
     args = sys.argv[1:]
     # Check args
-    if len(args) == 0:
-        print("Usage poetry run import DATA_FILE_PATH.xls")
+    if len(args) != 1:
+        print("Usage poetry run import path/file.xls")
         exit(1)
 
     # Check file format

@@ -2,11 +2,11 @@ version: '3.9'
 
 services:
 
-  backend:
+  retails-analysis-api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: retails-analysis-backend
+    container_name: retails-analysis-api
     depends_on:
       - mongo
       - spark-master
