@@ -106,6 +106,8 @@ async def customer_spent_most() -> List[str]:
 @app.get("/ratio_between_price_quantity", response_class=JSONResponse)
 async def ratio_between_price_quantity() -> List[str]:
     """Get the ratio between price and quantity for each invoice"""
+
+    # TODO: The ratio  between price and quantity is not correctly calculated
     df = SparkSession.getActiveSession().read.format("mongodb").load()
     final = df.groupBy('InvoiceNo').agg(
         F.sum('Quantity').alias('Quantities'), F.sum('UnitPrice').alias('Prices')
@@ -168,6 +170,7 @@ async def chart_distribution_prices() -> Any:
         layout_yaxis_title="Quantity",
     )
 
+    # TODO: Other proposal, not working at the moment
     # fig = go.Figure(
     #     data=[
     #         go.Bar(

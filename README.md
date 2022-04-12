@@ -13,22 +13,23 @@ The project is composed of 6 services:
 
 You can used the docker-compose for deployment the project as folllow:
 
+1. First copy and edit the environment variables.
+
+```bash
+cp .env-example .env
+```
+
+2. Deployment the project
+
 ```bash
 docker-compose build .
 docker-compose up
 ```
-
-## Import the retails data
+3. Import the dataset 'retails data', if it hasn't already been done
 
 ```bash
 poetry run import path/file.xlsx
 ```
-
-
-## Environment variables
-
-Environment variables can be changed in file '.env'.
-
 
 ## Fonctionnalités
 
