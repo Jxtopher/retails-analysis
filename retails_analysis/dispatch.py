@@ -62,38 +62,10 @@ mongodb_read_uri = (
 app = FastAPI()
 
 
-@app.get("/test", response_class=HTMLResponse)
-async def test() -> str:
-    return '<svg height="100" width="100"></svg>'
-
-
-@app.get("/")
-async def root() -> Dict[str, str]:
-    return {"message": "Hello World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None) -> Dict[str, Any]:
-    """Multiplication de deux nombres entiers.
-
-    Cette fonction ne sert pas à grand chose.
-
-    Parameters
-    ----------
-    item_id : int
-        Le premier nombre entier.
-    nombre2 : int
-        Le second nombre entier.
-
-        Avec une description plus longue.
-        Sur plusieurs lignes.
-
-    Returns
-    -------
-    int
-        Le produit des deux nombres.
-    """
-    return {"item_id": item_id, "q": q}
+@app.get("/", response_class=HTMLResponse)
+async def root() -> str:
+    """ Suggest consulting the documentation """
+    return "Please consult the doc at http://localhost/docs"
 
 
 @app.get("/product_sold_most", response_class=JSONResponse)
@@ -141,41 +113,65 @@ async def customer_spent_most() -> List[str]:
 #     return []
 
 
-@app.get("/chart_test", response_class=HTMLResponse)
-async def chart_test() -> Any:
+@app.get("/char_select_country", response_class=HTMLResponse)
+async def char_select_country() -> Any:
+    """ List of all available countries """
+    df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
+    get_countries = df.groupBy('Country').agg(F.count('Country'))
+
+    html = ""
+    for country, _ in get_countries.collect():
+        html += '<a href="/chart_distribution_of_products/'+country+'">'+country+'</a><br/>'
+    return html
+
+
+@app.get("/chart_distribution_of_products/{country}", response_class=HTMLResponse)
+async def chart_distribution_of_products(country: str) -> Any:
+    """ Create the chart distribution of products for a country """
     # sc = SparkSession.getActiveSession().sparkContext
     # sc.parallelize()
 
     df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
-    get_countrys = df.groupBy('Country').agg(F.count('Country'))
+    get_countries = df.groupBy('Country').agg(F.count('Country'))
 
-    print(df)
-    for country, _ in get_countrys.collect():
-        print(country)
-        df.show()
+    if get_countries.filter(get_countries.Country == country).count() == 1:
         azer = df.filter(F.col('Country') == country)
-        azer.show()
-        break
+        fig = go.Figure(
+            data=[go.Bar(x=azer.toPandas()['StockCode'], y=azer.toPandas()['Quantity'])],
+            layout=go.Layout(height=600, width=800),
+            layout_title_text="Products distribution for "+ country,
+            layout_xaxis_title="Stock code",
+            layout_yaxis_title="Quantity",
+        )
+        return fig.to_html()
+    else:
+        return "Country not found."
 
-    pass
 
-
-@app.get("/chart_distribution_prices", response_class=HTMLResponse)
+@app.get("/chart_distribution_of_prices", response_class=HTMLResponse)
 async def chart_distribution_prices() -> Any:
+    """ Distribution of prices """
     df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
     distribution_prices = df.groupBy('UnitPrice').agg(F.sum('Quantity').alias('Quantities'))
     distribution_prices.show()
 
-    fig = go.Figure(
-        data=[
-            go.Histogram(
-                x=distribution_prices.toPandas()['UnitPrice'],
-            )
-        ],
-        # data=[go.bar(distribution_prices.toPandas(), x='UnitPrice', y='Quantities')],
-        layout_title_text="A Figure Displaying Itself",
-    )
+    # fig = go.Figure(
+    #     data=[
+    #         go.Histogram(
+    #             x=distribution_prices.toPandas()['UnitPrice'],
+    #         )
+    #     ],
+    #     # data=[go.bar(distribution_prices.toPandas(), x='UnitPrice', y='Quantities')],
+    #     layout_title_text="A Figure Displaying Itself",
+    # )
 
+    fig = go.Figure(
+            data=[go.Bar(x=distribution_prices.toPandas()['UnitPrice'], y=distribution_prices.toPandas()['Quantities'])],
+            layout=go.Layout(height=600, width=800),
+            layout_title_text="Distribution of prices",
+            layout_xaxis_title="Prices",
+            layout_yaxis_title="Quantity",
+    )
     return fig.to_html()
 
 

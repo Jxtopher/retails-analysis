@@ -1,3 +1,6 @@
+# -----------------------------------------------------------
+# Import a dataset into the database
+# -----------------------------------------------------------
 from numpy import double
 from pyspark.sql import SparkSession
 from os.path import exists
@@ -33,6 +36,8 @@ def import_retails_data(
             + monngo_pwd
             + '@'
             + monngo_host
+            + ':'
+            + monngo_port
             + '/'
             + monngo_db
             + '.'
@@ -47,6 +52,8 @@ def import_retails_data(
             + monngo_pwd
             + '@'
             + monngo_host
+            + ':'
+            + monngo_port
             + '/'
             + monngo_db
             + '.'
