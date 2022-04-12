@@ -1,3 +1,6 @@
+# -----------------------------------------------------------
+# Start the dispatch
+# -----------------------------------------------------------
 import plotly.graph_objects as go
 import uvicorn
 
@@ -7,7 +10,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from os.path import exists
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from typing import Optional, Dict, Any, List
+from typing import Any, List
 
 
 # Loading environment vars
@@ -64,7 +67,7 @@ app = FastAPI()
 
 @app.get("/", response_class=HTMLResponse)
 async def root() -> str:
-    """ Suggest consulting the documentation """
+    """Suggest consulting the documentation"""
     return "Please consult the doc at http://localhost/docs"
 
 
@@ -100,37 +103,34 @@ async def customer_spent_most() -> List[str]:
     return df_joined.toJSON().collect()
 
 
-# @app.get("/ratio_between_price_quantity", response_class=JSONResponse)
-# async def ratio_between_price_quantity() -> List[str]:
-#     """Get the ratio between price and quantity for each invoice"""
-#     df = SparkSession.getActiveSession().read.format("mongodb").load()
-#     final = df.groupBy('InvoiceNo').agg(
-#         F.sum('Quantity').alias('Quantities'), F.sum('UnitPrice').alias('Prices')
-#     )
-#     df_total = final.withColumn('Ratio', final['Prices'] / final['Quantities'])
+@app.get("/ratio_between_price_quantity", response_class=JSONResponse)
+async def ratio_between_price_quantity() -> List[str]:
+    """Get the ratio between price and quantity for each invoice"""
+    df = SparkSession.getActiveSession().read.format("mongodb").load()
+    final = df.groupBy('InvoiceNo').agg(
+        F.sum('Quantity').alias('Quantities'), F.sum('UnitPrice').alias('Prices')
+    )
+    df_total = final.withColumn('Ratio', final['Prices'] / final['Quantities'])
 
-#     df_total.show()
-#     return []
+    df_total.show()
+    return []
 
 
 @app.get("/char_select_country", response_class=HTMLResponse)
 async def char_select_country() -> Any:
-    """ List of all available countries """
+    """List of all available countries"""
     df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
     get_countries = df.groupBy('Country').agg(F.count('Country'))
 
     html = ""
     for country, _ in get_countries.collect():
-        html += '<a href="/chart_distribution_of_products/'+country+'">'+country+'</a><br/>'
+        html += '<a href="/chart_distribution_of_products/' + country + '">' + country + '</a><br/>'
     return html
 
 
 @app.get("/chart_distribution_of_products/{country}", response_class=HTMLResponse)
 async def chart_distribution_of_products(country: str) -> Any:
-    """ Create the chart distribution of products for a country """
-    # sc = SparkSession.getActiveSession().sparkContext
-    # sc.parallelize()
-
+    """Create the chart distribution of products for a country"""
     df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
     get_countries = df.groupBy('Country').agg(F.count('Country'))
 
@@ -139,7 +139,7 @@ async def chart_distribution_of_products(country: str) -> Any:
         fig = go.Figure(
             data=[go.Bar(x=azer.toPandas()['StockCode'], y=azer.toPandas()['Quantity'])],
             layout=go.Layout(height=600, width=800),
-            layout_title_text="Products distribution for "+ country,
+            layout_title_text="Products distribution for " + country,
             layout_xaxis_title="Stock code",
             layout_yaxis_title="Quantity",
         )
@@ -150,28 +150,36 @@ async def chart_distribution_of_products(country: str) -> Any:
 
 @app.get("/chart_distribution_of_prices", response_class=HTMLResponse)
 async def chart_distribution_prices() -> Any:
-    """ Distribution of prices """
+    """Distribution of prices"""
     df = SparkSession.getActiveSession().read.format("com.mongodb.spark.sql.DefaultSource").load()
     distribution_prices = df.groupBy('UnitPrice').agg(F.sum('Quantity').alias('Quantities'))
     distribution_prices.show()
 
+    # TODO: need to be fixed, the histogram does not consider the quantity
+    fig = go.Figure(
+        data=[
+            go.Histogram(
+                x=distribution_prices.toPandas()['UnitPrice'],
+            )
+        ],
+        layout=go.Layout(height=600, width=800),
+        layout_title_text="Distribution of prices",
+        layout_xaxis_title="Prices",
+        layout_yaxis_title="Quantity",
+    )
+
     # fig = go.Figure(
     #     data=[
-    #         go.Histogram(
+    #         go.Bar(
     #             x=distribution_prices.toPandas()['UnitPrice'],
+    #             y=distribution_prices.toPandas()['Quantities'],
     #         )
     #     ],
-    #     # data=[go.bar(distribution_prices.toPandas(), x='UnitPrice', y='Quantities')],
-    #     layout_title_text="A Figure Displaying Itself",
+    #     layout=go.Layout(height=600, width=800),
+    #     layout_title_text="Distribution of prices",
+    #     layout_xaxis_title="Prices",
+    #     layout_yaxis_title="Quantity",
     # )
-
-    fig = go.Figure(
-            data=[go.Bar(x=distribution_prices.toPandas()['UnitPrice'], y=distribution_prices.toPandas()['Quantities'])],
-            layout=go.Layout(height=600, width=800),
-            layout_title_text="Distribution of prices",
-            layout_xaxis_title="Prices",
-            layout_yaxis_title="Quantity",
-    )
     return fig.to_html()
 
 

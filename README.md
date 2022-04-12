@@ -3,8 +3,8 @@
 
 ## Project deployment
 
-The project is composed of 6 services
-- backend: http://localhost
+The project is composed of 6 services:
+- retails-analysis-api: http://localhost
 - jupyter-notebook http://localhost:81
 - spark-worker
 - spark-master
@@ -18,13 +18,27 @@ docker-compose build .
 docker-compose up
 ```
 
-Import the retails data
+## Import the retails data
+
+```bash
+poetry run import path/file.xlsx
+```
 
 
 ## Environment variables
 
 Environment variables can be changed in file '.env'.
 
+
+## Fonctionnalités
+
+- [x] Statistics available through an API route
+- [x] Import dataset only files on format xlsx
+- [x] Continuous integration with GitHub Actions
+- [x] Creation of the work environment: docker-compose and Dockerfile
+- [ ] Set up Jupyter Notebook
+- [ ] Better distinguish environment Prod and Dev
+- [ ] More unit tests
 
 ## Retails analysis API
 
