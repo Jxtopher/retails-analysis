@@ -5,7 +5,7 @@ services:
   retails-analysis-api:
     build:
       context: .
-      dockerfile: dev.Dockerfile
+      dockerfile: prod.Dockerfile
     container_name: retails-analysis-api
     depends_on:
       - mongo
@@ -13,8 +13,8 @@ services:
     ports:
       - 80:80
       - 8888:8888
-    volumes:
-      - ./:/apps/
+    # volumes:
+    #   - ./:/apps/
 
   spark-worker:
     image: bitnami/spark:${SPARK_VERSION:-latest}

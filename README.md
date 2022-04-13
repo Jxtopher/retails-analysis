@@ -25,12 +25,18 @@ cp .env-example .env
 docker-compose build .
 docker-compose up
 ```
-3. Import the dataset 'retails data', if it hasn't already been done. Only inside the container for this moment.
+
+3. Please create database in mongodb, corresponding to 'MONNGO_DB' in .env file
+
+
+4. Import the dataset 'retails data', if it hasn't already been done. Only inside the container for this moment.
 
 ```bash
 docker exec -it retails-analysis-api bash
 poetry run import '/apps/dataset/Online Retail.xlsx'
 ```
+
+5. Connect à http://localhost and use retails analysis api route
 
 ## Fonctionnalités
 
