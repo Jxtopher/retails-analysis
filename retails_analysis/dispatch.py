@@ -55,7 +55,7 @@ app = FastAPI()
 
 
 @app.get("/")
-async def root() -> str:
+async def root() -> Any:
     return RedirectResponse("/docs")
 
 
