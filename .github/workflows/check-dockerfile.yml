@@ -9,9 +9,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      
-      - name: Check Dockerfile
-        run: docker run --rm -i hadolint/hadolint < Dockerfile
-        
+
+      - name: Check Dockerfile for dev
+        run: docker run --rm -i hadolint/hadolint < dev.Dockerfile
+
+      - name: Check Dockerfile for production
+        run: docker run --rm -i hadolint/hadolint < prod.Dockerfile
+
       - name: Check docker-compose
         run: docker-compose -f docker-compose.yml config

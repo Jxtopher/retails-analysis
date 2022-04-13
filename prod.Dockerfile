@@ -1,7 +1,5 @@
 FROM python:3.8
 
-RUN echo "Acquire::http::Proxy \"http://192.168.1.2:8000\";" > /etc/apt/apt.conf.d/00aptproxy
-
 # hadolint ignore=DL3008
 RUN pip install --no-cache-dir poetry==1.1.13 notebook==5.0\
 && apt-get update -y \
