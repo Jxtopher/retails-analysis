@@ -5,11 +5,11 @@
 
 The project is composed of 6 services:
 - retails-analysis-api: http://localhost
-- jupyter-notebook http://localhost:8888
-- spark-worker http://localhost:8080
-- spark-master
+- jupyter-notebook: http://localhost:8888
+- spark-worker
+- spark-master http://localhost:8080
 - mongo
-- mongo-express
+- mongo-express: http://localhost:8081
 
 You can used the docker-compose for deployment the project as folllow:
 
@@ -28,7 +28,8 @@ docker-compose up
 3. Import the dataset 'retails data', if it hasn't already been done. Only inside the container for this moment.
 
 ```bash
-poetry run import path/file.xlsx
+docker exec -it retails-analysis-api bash
+poetry run import '/apps/dataset/Online Retail.xlsx'
 ```
 
 ## Fonctionnalités
@@ -54,6 +55,6 @@ poetry run flake8 --config .config/flake8.cfg
 poetry run python -u -m unittest discover
 ```
 
-## See
+## References
 - MongoDB Connector for Spark: https://www.mongodb.com/docs/spark-connector/current/
 - Jupyter tutorial: https://www.sicara.ai/blog/2017-05-02-get-started-pyspark-jupyter-notebook-3-minutes

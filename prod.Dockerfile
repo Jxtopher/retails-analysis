@@ -13,7 +13,6 @@ COPY ./  /apps
 WORKDIR /apps
 
 RUN poetry install \
-&& poetry run import './dateset/Online Retail.xlsx' \
 && useradd user \
 && mkdir -p /home/user/ \
 && chown user:user /home/user/
