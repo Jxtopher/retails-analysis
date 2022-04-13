@@ -24,46 +24,29 @@ def import_retails_data(
     monngo_coll: str,
 ) -> None:
     """Import retails dataset in xls format"""
-    mongodb_write_uri = 'mongodb://{monngo_user}:{monngo_pwd}@{monngo_host}:{monngo_port}/{monngo_db}.{monngo_coll}?authSource=admin'
+    mongodb_write_uri = 'mongodb://{monngo_user}:{monngo_pwd}@{monngo_host}:{monngo_port}/{monngo_db}.{monngo_coll}?authSource=admin'.format(
+        monngo_user=monngo_user,
+        monngo_pwd=monngo_pwd,
+        monngo_host=monngo_host,
+        monngo_port=monngo_port,
+        monngo_db=monngo_db,
+        monngo_coll=monngo_coll,
+    )
 
-    mongodb_read_uri = 'mongodb://{monngo_user}:{monngo_pwd}@{monngo_host}:{monngo_port}/{monngo_db}.{monngo_coll}?authSource=admin'
-    print(mongodb_write_uri)
+    mongodb_read_uri = 'mongodb://{monngo_user}:{monngo_pwd}@{monngo_host}:{monngo_port}/{monngo_db}.{monngo_coll}?authSource=admin'.format(
+        monngo_user=monngo_user,
+        monngo_pwd=monngo_pwd,
+        monngo_host=monngo_host,
+        monngo_port=monngo_port,
+        monngo_db=monngo_db,
+        monngo_coll=monngo_coll,
+    )
     spark = (
         SparkSession.builder.appName("Import retails dataset")
         .master('spark://' + spark_host + ':' + spark_port)
         .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector:10.0.0')
-        .config(
-            'spark.mongodb.write.connection.uri',
-            'mongodb://'
-            + monngo_user
-            + ':'
-            + monngo_pwd
-            + '@'
-            + monngo_host
-            + ':'
-            + monngo_port
-            + '/'
-            + monngo_db
-            + '.'
-            + monngo_coll
-            + '?authSource=admin',
-        )
-        .config(
-            'spark.mongodb.read.connection.uri',
-            'mongodb://'
-            + monngo_user
-            + ':'
-            + monngo_pwd
-            + '@'
-            + monngo_host
-            + ':'
-            + monngo_port
-            + '/'
-            + monngo_db
-            + '.'
-            + monngo_coll
-            + '?authSource=admin',
-        )
+        .config(mongodb_write_uri)
+        .config(mongodb_read_uri)
         .getOrCreate()
     )
 
