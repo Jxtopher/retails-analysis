@@ -24,6 +24,10 @@ def import_retails_data(
     monngo_coll: str,
 ) -> None:
     """Import retails dataset in xls format"""
+    mongodb_write_uri = 'mongodb://{monngo_user}:{monngo_pwd}@{monngo_host}:{monngo_port}/{monngo_db}.{monngo_coll}?authSource=admin'
+
+    mongodb_read_uri = 'mongodb://{monngo_user}:{monngo_pwd}@{monngo_host}:{monngo_port}/{monngo_db}.{monngo_coll}?authSource=admin'
+    print(mongodb_write_uri)
     spark = (
         SparkSession.builder.appName("Import retails dataset")
         .master('spark://' + spark_host + ':' + spark_port)

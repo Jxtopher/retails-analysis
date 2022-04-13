@@ -6,7 +6,7 @@ import uvicorn
 
 from dotenv import dotenv_values
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from os.path import exists
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
@@ -19,31 +19,20 @@ if not exists(".env"):
     raise Exception('[-] File ' + ".env" + ' does not exist')
 
 # Spark initialisation
-mongodb_write_uri = (
-    'mongodb://'
-    + str(config['MONNGO_USER'])
-    + ':'
-    + str(config['MONNGO_PWD'])
-    + '@'
-    + str(config['MONNGO_HOST'])
-    + '/'
-    + str(config['MONNGO_DB'])
-    + '.'
-    + str(config['MONNGO_COLL'])
-    + '?authSource=admin'
+mongodb_write_uri = 'mongodb://{monngo_user}:{monngo_pwd}@{monngo_host}/{monngo_db}.{monngo_coll}?authSource=admin'.format(
+    monngo_user=config['MONNGO_USER'],
+    monngo_pwd=config['MONNGO_PWD'],
+    monngo_host=config['MONNGO_HOST'],
+    monngo_db=config['MONNGO_DB'],
+    monngo_coll=config['MONNGO_COLL'],
 )
-mongodb_read_uri = (
-    'mongodb://'
-    + str(config['MONNGO_USER'])
-    + ':'
-    + str(config['MONNGO_PWD'])
-    + '@'
-    + str(config['MONNGO_HOST'])
-    + '/'
-    + str(config['MONNGO_DB'])
-    + '.'
-    + str(config['MONNGO_COLL'])
-    + '?authSource=admin'
+
+mongodb_read_uri = 'mongodb://{monngo_user}:{monngo_pwd}@{monngo_host}/{monngo_db}.{monngo_coll}?authSource=admin'.format(
+    monngo_user=config['MONNGO_USER'],
+    monngo_pwd=config['MONNGO_PWD'],
+    monngo_host=config['MONNGO_HOST'],
+    monngo_db=config['MONNGO_DB'],
+    monngo_coll=config['MONNGO_COLL'],
 )
 
 (
@@ -65,10 +54,9 @@ mongodb_read_uri = (
 app = FastAPI()
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def root() -> str:
-    """Suggest consulting the documentation"""
-    return "Please consult the doc at http://localhost/docs"
+    return RedirectResponse("/docs")
 
 
 @app.get("/product_sold_most", response_class=JSONResponse)
@@ -137,9 +125,14 @@ async def chart_distribution_of_products(country: str) -> Any:
     get_countries = df.groupBy('Country').agg(F.count('Country'))
 
     if get_countries.filter(get_countries.Country == country).count() == 1:
-        azer = df.filter(F.col('Country') == country)
+        products_by_country = df.filter(F.col('Country') == country)
         fig = go.Figure(
-            data=[go.Bar(x=azer.toPandas()['StockCode'], y=azer.toPandas()['Quantity'])],
+            data=[
+                go.Bar(
+                    x=products_by_country.toPandas()['StockCode'],
+                    y=products_by_country.toPandas()['Quantity'],
+                )
+            ],
             layout=go.Layout(height=600, width=800),
             layout_title_text="Products distribution for " + country,
             layout_xaxis_title="Stock code",
@@ -170,7 +163,7 @@ async def chart_distribution_prices() -> Any:
         layout_yaxis_title="Quantity",
     )
 
-    # TODO: Other proposal, not working at the moment
+    # # TODO: Other proposal, not working at the moment
     # fig = go.Figure(
     #     data=[
     #         go.Bar(

@@ -5,8 +5,8 @@
 
 The project is composed of 6 services:
 - retails-analysis-api: http://localhost
-- jupyter-notebook http://localhost:81
-- spark-worker
+- jupyter-notebook http://localhost:8888
+- spark-worker http://localhost:8080
 - spark-master
 - mongo
 - mongo-express
@@ -25,7 +25,7 @@ cp .env-example .env
 docker-compose build .
 docker-compose up
 ```
-3. Import the dataset 'retails data', if it hasn't already been done
+3. Import the dataset 'retails data', if it hasn't already been done. Only inside the container for this moment.
 
 ```bash
 poetry run import path/file.xlsx
@@ -37,6 +37,7 @@ poetry run import path/file.xlsx
 - [x] Import dataset only files on format xlsx
 - [x] Continuous integration with GitHub Actions
 - [x] Creation of the work environment: docker-compose and Dockerfile
+- [ ] Improve how to import files, use an API route
 - [ ] Set up Jupyter Notebook
 - [ ] Better distinguish environment Prod and Dev
 - [ ] More unit tests

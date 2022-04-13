@@ -5,21 +5,16 @@ services:
   retails-analysis-api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: prod.Dockerfile
     container_name: retails-analysis-api
     depends_on:
       - mongo
       - spark-master
     ports:
       - 80:80
-    volumes:
-      - ./:/apps/
-
-  jupyter-notebook:
-    container_name: retails-analysis-jupyter
-    depends_on:
-      - mongo
-      - spark-master
+      - 8888:8888
+    # volumes:
+    #   - ./:/apps/
 
   spark-worker:
     image: bitnami/spark:${SPARK_VERSION:-latest}
