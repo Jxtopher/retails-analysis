@@ -38,7 +38,7 @@ poetry run import '/apps/dataset/Online Retail.xlsx'
 
 5. Connect à http://localhost and use retails analysis api route
 
-## Fonctionnalités
+## Features
 
 - [x] Statistics available through an API route
 - [x] Import dataset only files on format xlsx
