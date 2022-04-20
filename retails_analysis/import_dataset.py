@@ -26,7 +26,7 @@ def import_retails_data(
     """Import retails dataset in xls format"""
     spark = (
         SparkSession.builder.appName("Import retails dataset")
-        .master('spark://' + spark_host + ':' + spark_port)
+        .master(f'spark://{spark_host}:{spark_port}')
         .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector:10.0.0')
         .config(
             'spark.mongodb.write.connection.uri',
@@ -100,7 +100,7 @@ def main() -> None:
     # Loading environment vars
     config = dotenv_values(".env")
     if not exists(".env"):
-        raise Exception('[-] File ' + ".env" + ' does not exist')
+        raise Exception('[-] File ".env"  does not exist')
 
     args = sys.argv[1:]
     # Check args
@@ -118,7 +118,7 @@ def main() -> None:
 
     # Check if file exist
     if not exists(path_to_file):
-        raise Exception('[-] File ' + path_to_file + ' does not exist')
+        raise Exception(f'[-] File {path_to_file} does not exist')
 
     import_retails_data(
         path_to_file,
