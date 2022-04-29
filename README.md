@@ -36,7 +36,7 @@ docker exec -it retails-analysis-api bash
 poetry run import '/apps/dataset/Online Retail.xlsx'
 ```
 
-5. Connect à http://localhost and use retails analysis api route
+5. Connect to http://localhost and use retails analysis api route
 
 ## Features
 
